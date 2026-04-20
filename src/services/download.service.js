@@ -3,6 +3,9 @@ const path = require("node:path");
 const { randomUUID } = require("node:crypto");
 const { pipeline } = require("node:stream/promises");
 const axios = require("axios");
+const ffmpegPath = require("ffmpeg-static");
+const ffmpeg = require("fluent-ffmpeg");
+ffmpeg.setFfmpegPath(ffmpegPath);
 const { ApiError } = require("../utils/api-error");
 const animeService = require("./animeav1.service");
 
@@ -16,7 +19,7 @@ const DEFAULT_HEADERS = {
   Referer: "https://animeav1.com/",
 };
 
-const SERVER_PRIORITY = ["pdrain", "1fichier", "mp4upload", "upnshare", "mega", "hls"];
+const SERVER_PRIORITY = ["pdrain", "1fichier", "mp4upload", "upnshare","hls", "mega"];
 
 function getDownloadsDir() {
   const configuredPath = process.env.DOWNLOADS_DIR || "downloads";
@@ -173,7 +176,59 @@ function resolveDirectDownloadUrl(rawUrl, serverName) {
     }
   }
 
+  if (host.includes("zilla-networks.com") && parsed.pathname.startsWith("/play/")) {
+    const videoId = parsed.pathname.split("/").pop();
+    if (videoId) {
+      return `https://player.zilla-networks.com/m3u8/${videoId}`;
+    }
+  }
+
   return rawUrl;
+}
+
+async function downloadHlsVideo(finalUrl, filePath, record, candidate) {
+  record.status = "downloading";
+  record.currentServer = candidate.server;
+  record.sourceUrl = finalUrl;
+  record.totalBytes = null;
+  record.downloadedBytes = 0;
+  record.progress = 1;
+  record.updatedAt = Date.now();
+
+  return new Promise((resolve, reject) => {
+    ffmpeg(finalUrl)
+      .inputOptions([
+        '-headers',
+        `User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36\r\nReferer: https://animeav1.com/\r\n`
+      ])
+      .outputOptions([
+        "-c copy",
+        "-bsf:a aac_adtstoasc"
+      ])
+      .output(filePath)
+      .on("start", () => {
+        record.status = "downloading";
+        record.progress = 1;
+        record.updatedAt = Date.now();
+      })
+      .on("progress", (progress) => {
+        if (progress.percent && progress.percent > 0) {
+          record.progress = Math.max(1, Math.min(99, Math.floor(progress.percent)));
+        } else {
+          // Si ffmpeg no nos da un %, subimos el progreso visualmente poco a poco
+          record.progress = Math.min(90, record.progress + 1);
+        }
+        record.updatedAt = Date.now();
+      })
+      .on("error", async (err) => {
+        await removeFileIfExists(filePath);
+        reject(new Error(`Transferencia fallida en ${candidate.server} (HLS): ${err.message}`));
+      })
+      .on("end", () => {
+        resolve();
+      })
+      .run();
+  });
 }
 
 async function downloadFromUrl(record, candidate) {
@@ -182,58 +237,64 @@ async function downloadFromUrl(record, candidate) {
   const fileName = makeDownloadFilename(record, finalUrl, candidate.server);
   const filePath = path.join(downloadsDir, fileName);
 
-  let response;
-  try {
-    const timeout = Number(process.env.DOWNLOAD_REQUEST_TIMEOUT_MS || 120000);
-    response = await axios.get(finalUrl, {
-      responseType: "stream",
-      timeout,
-      maxRedirects: 5,
-      headers: DEFAULT_HEADERS,
-      validateStatus: (status) => status >= 200 && status < 400,
-    });
-  } catch (error) {
-    throw new Error(`No se pudo abrir enlace ${candidate.server}: ${error.message}`);
-  }
+  const isHls = finalUrl.toLowerCase().includes(".m3u8") || /hls/i.test(candidate.server);
 
-  const contentType = response.headers["content-type"] || "";
-  ensureDirectLikeContent(contentType, finalUrl);
-
-  const totalBytesRaw = Number(response.headers["content-length"] || 0);
-  const totalBytes = Number.isFinite(totalBytesRaw) && totalBytesRaw > 0 ? totalBytesRaw : null;
-
-  record.status = "downloading";
-  record.currentServer = candidate.server;
-  record.sourceUrl = finalUrl;
-  record.totalBytes = totalBytes;
-  record.downloadedBytes = 0;
-  record.progress = 1;
-  record.updatedAt = Date.now();
-
-  const writer = fs.createWriteStream(filePath, { flags: "w" });
-
-  response.data.on("data", (chunk) => {
-    if (!Buffer.isBuffer(chunk)) {
-      return;
+  if (isHls) {
+    await downloadHlsVideo(finalUrl, filePath, record, candidate);
+  } else {
+    let response;
+    try {
+      const timeout = Number(process.env.DOWNLOAD_REQUEST_TIMEOUT_MS || 120000);
+      response = await axios.get(finalUrl, {
+        responseType: "stream",
+        timeout,
+        maxRedirects: 5,
+        headers: DEFAULT_HEADERS,
+        validateStatus: (status) => status >= 200 && status < 400,
+      });
+    } catch (error) {
+      throw new Error(`No se pudo abrir enlace ${candidate.server}: ${error.message}`);
     }
 
-    record.downloadedBytes += chunk.length;
+    const contentType = response.headers["content-type"] || "";
+    ensureDirectLikeContent(contentType, finalUrl);
+
+    const totalBytesRaw = Number(response.headers["content-length"] || 0);
+    const totalBytes = Number.isFinite(totalBytesRaw) && totalBytesRaw > 0 ? totalBytesRaw : null;
+
+    record.status = "downloading";
+    record.currentServer = candidate.server;
+    record.sourceUrl = finalUrl;
+    record.totalBytes = totalBytes;
+    record.downloadedBytes = 0;
+    record.progress = 1;
     record.updatedAt = Date.now();
 
-    if (record.totalBytes && record.totalBytes > 0) {
-      const pct = Math.floor((record.downloadedBytes / record.totalBytes) * 100);
-      record.progress = Math.max(1, Math.min(99, pct));
-      return;
+    const writer = fs.createWriteStream(filePath, { flags: "w" });
+
+    response.data.on("data", (chunk) => {
+      if (!Buffer.isBuffer(chunk)) {
+        return;
+      }
+
+      record.downloadedBytes += chunk.length;
+      record.updatedAt = Date.now();
+
+      if (record.totalBytes && record.totalBytes > 0) {
+        const pct = Math.floor((record.downloadedBytes / record.totalBytes) * 100);
+        record.progress = Math.max(1, Math.min(99, pct));
+        return;
+      }
+
+      record.progress = Math.min(90, record.progress + 1);
+    });
+
+    try {
+      await pipeline(response.data, writer);
+    } catch (error) {
+      await removeFileIfExists(filePath);
+      throw new Error(`Transferencia fallida en ${candidate.server}: ${error.message}`);
     }
-
-    record.progress = Math.min(90, record.progress + 1);
-  });
-
-  try {
-    await pipeline(response.data, writer);
-  } catch (error) {
-    await removeFileIfExists(filePath);
-    throw new Error(`Transferencia fallida en ${candidate.server}: ${error.message}`);
   }
 
   const stat = await fs.promises.stat(filePath);
