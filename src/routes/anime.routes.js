@@ -1,7 +1,7 @@
 const express = require("express");
 const { requireApiKey } = require("../middlewares/auth");
 const { dailyRateLimit } = require("../middlewares/rate-limit");
-const animeService = require("../services/animeav1.service");
+const animeService = require("../services/anime.service");
 const downloadService = require("../services/download.service");
 const { ApiError } = require("../utils/api-error");
 
