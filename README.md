@@ -1,19 +1,30 @@
 # Anime1v API & Downloader Engine
 
 <div align="center">
-  <h3> Creado y Mantenido por <a href="https://github.com/FxxMorgan/">FxxMorgan</a> </h3>
-  <p>API 100% Open Source en Node.js para scraping multi-proveedor y descargas directas de animes/episodios en HD.</p>
+  <h3>Creado y Mantenido por <a href="https://github.com/FxxMorgan/">FxxMorgan</a></h3>
+  <p>
+    API 100% Open Source en Node.js para scraping multi-proveedor
+    y descargas directas de animes/episodios en HD.
+  </p>
 </div>
 
 <div align="center">
-  <image-card alt="Stars" src="https://img.shields.io/github/stars/FxxMorgan/anime1v-api" ></image-card>
-  <image-card alt="Forks" src="https://img.shields.io/github/forks/FxxMorgan/anime1v-api" ></image-card>
-  <image-card alt="License" src="https://img.shields.io/github/license/FxxMorgan/anime1v-api" ></image-card>
-  <a href="https://github.com/FxxMorgan/"><img src="https://img.shields.io/badge/Open%20Source-FxxMorgan-blue" alt="Open Source"></a>
+  <a href="https://github.com/FxxMorgan/">
+    <img src="https://img.shields.io/badge/Open%20Source-FxxMorgan-blue" alt="Open Source">
+  </a>
+
+  <img src="https://img.shields.io/github/stars/FxxMorgan/anime1v-api" alt="Stars">
+
+  <img src="https://img.shields.io/github/forks/FxxMorgan/anime1v-api" alt="Forks">
+
+  <img src="https://img.shields.io/github/license/FxxMorgan/anime1v-api" alt="License">
 </div>
 
+---
 
-Esta herramienta fue desarrollada para facilitar la consulta y consumo de contenido automatizado. Ha sido liberada de manera gratuita para la comunidad. Si utilizas este código en tus proyectos, sitios web o aplicaciones, **el Core Engine imprimirá automáticamente los créditos correspondientes a su creador original (FxxMorgan)** en los headers HTTP y en la consola. Esto es parte de la licencia de uso libre.
+Esta herramienta fue desarrollada para facilitar la consulta y consumo de contenido automatizado. Ha sido liberada de manera gratuita para la comunidad.
+
+Si utilizas este código en proyectos, sitios web o aplicaciones, el **Core Engine imprimirá automáticamente los créditos correspondientes a su creador original (FxxMorgan)** en los headers HTTP y en la consola como parte de la licencia de uso.
 
 ---
 
