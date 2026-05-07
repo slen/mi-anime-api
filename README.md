@@ -1,45 +1,49 @@
-﻿# Anime1v API & Downloader Engine
+# Anime1v API & Downloader Engine
 
 <div align="center">
   <h3> Creado y Mantenido por <a href="https://github.com/FxxMorgan/">FxxMorgan</a> </h3>
   <p>API 100% Open Source en Node.js para scraping multi-proveedor y descargas directas de animes/episodios en HD.</p>
 </div>
 
-[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
-[![Open Source](https://img.shields.io/badge/Open%20Source-FxxMorgan-blue)](https://github.com/FxxMorgan/)
+<div align="center">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green" alt="License"></a>
+  <a href="https://github.com/FxxMorgan/"><img src="https://img.shields.io/badge/Open%20Source-FxxMorgan-blue" alt="Open Source"></a>
+  <a href="https://github.com/FxxMorgan/"><img src="https://img.shields.io/badge/stars-110+-yellow.svg" alt="Stars"></a>
+  <a href="https://github.com/FxxMorgan/"><img src="https://img.shields.io/badge/forks-20+-lightgrey.svg" alt="Forks"></a>
+</div>
 
 Esta herramienta fue desarrollada para facilitar la consulta y consumo de contenido automatizado. Ha sido liberada de manera gratuita para la comunidad. Si utilizas este código en tus proyectos, sitios web o aplicaciones, **el Core Engine imprimirá automáticamente los créditos correspondientes a su creador original (FxxMorgan)** en los headers HTTP y en la consola. Esto es parte de la licencia de uso libre.
 
 ---
 
-## 📡 Proveedores Soportados
+## Proveedores Soportados
 
 | Proveedor | Búsqueda | Info Anime | Episodios | Descarga | Notas |
 |-----------|:--------:|:----------:|:---------:|:--------:|-------|
-| **AnimeAV1** | ✅ | ✅ | ✅ | ✅ | HLS nativo, más estable |
-| **AnimeFLV** | ✅ | ✅ | ✅ | ✅ | Requiere puppeteer (anti-bot) |
-| **TioAnime** | ✅ | ✅ | ✅ | ✅ | YourUpload recomendado |
-| **HentaiLA** | ✅ | ✅ | ✅ | ⚠️ | SvelteKit, API `__data.json` |
-| **JKAnime** | ✅ | ✅ | ✅ | ❌ | JKPlayer con cifrado fuerte |
+| **AnimeAV1** | Sí | Sí | Sí | Sí | HLS nativo, más estable |
+| **AnimeFLV** | Sí | Sí | Sí | Sí | Requiere puppeteer (anti-bot) |
+| **TioAnime** | Sí | Sí | Sí | Sí | YourUpload recomendado |
+| **HentaiLA** | Sí | Sí | Sí | Parcial | SvelteKit, API `__data.json` |
+| **JKAnime** | Sí | Sí | Sí | No | JKPlayer con cifrado fuerte |
 
 ### Servidores de Video Soportados
 
 | Servidor | Resolución | HLS | Notas |
 |----------|:----------:|:---:|-------|
-| **YourUpload** | ✅ Directo | - | Más confiable, priorizado |
-| **Mega** | ✅ Directo | - | Requiere `includeMega=true` |
-| **1Fichier** | ⚠️ POST | - | Cookies + redirect |
-| **StreamWish** | ⚠️ Puppeteer | ✅ | Protección JS |
-| **StreamTape** | ⚠️ Puppeteer | - | Protección JS |
-| **VOE** | ⚠️ Redirect | - | Filtro anti-fake |
-| **VidHide** | ❌ | - | Cifrado fuerte |
-| **MP4Upload** | ⚠️ HTML | - | Embed HTML |
-| **HLS / Zilla** | ✅ | ✅ | FFmpeg con headers |
-| **PixelDrain** | ✅ Directo | - | API `/api/file/{id}?download` |
+| **YourUpload** | Directo | - | Más confiable, priorizado |
+| **Mega** | Directo | - | Requiere `includeMega=true` |
+| **1Fichier** | POST | - | Cookies + redirect |
+| **StreamWish** | Puppeteer | Sí | Protección JS |
+| **StreamTape** | Puppeteer | - | Protección JS |
+| **VOE** | Redirect | - | Filtro anti-fake |
+| **VidHide** | No | - | Cifrado fuerte |
+| **MP4Upload** | HTML | - | Embed HTML |
+| **HLS / Zilla** | Sí | Sí | FFmpeg con headers |
+| **PixelDrain** | Directo | - | API `/api/file/{id}?download` |
 
 ---
 
-## 🚀 Características Principales
+## Características Principales
 
 - **Multi-Proveedor**: AnimeAV1, AnimeFLV, TioAnime, HentaiLA, JKAnime — búsqueda unificada.
 - **Puppeteer Anti-Bot**: Resuelve páginas con protección JavaScript (Cloudflare, fingerprinting, SvelteKit).
@@ -53,7 +57,7 @@ Esta herramienta fue desarrollada para facilitar la consulta y consumo de conten
 
 ---
 
-## 📦 Instalación y Uso Local
+## Instalación y Uso Local
 
 ### 1. Requisitos
 
@@ -90,13 +94,13 @@ Servidor en `http://localhost:3001`.
 
 ---
 
-## 🖥️ CLI Interactivo v2
+## CLI Interactivo v2
 
 ```bash
 node descargador.js
 ```
 
-**Nuevo en v2:**
+**Novedades en v2:**
 1. Selección de modo: búsqueda / link directo / link de anime
 2. Selector de proveedor (AnimeAV1, AnimeFLV, TioAnime, HentaiLA, JKAnime)
 3. Resultados con fuente del proveedor
@@ -107,10 +111,10 @@ node descargador.js
 
 ---
 
-## 📡 Documentación de Endpoints
+## Documentación de Endpoints
 
 ### 1. Búsqueda de Animes
-```
+```http
 GET /api/v1/anime/search?q=nombre&domain=proveedor.com
 ```
 Parámetros:
@@ -118,17 +122,17 @@ Parámetros:
 - `domain` — Dominio del proveedor (opcional, ej: `tioanime.com`)
 
 ### 2. Información de Anime
-```
+```http
 GET /api/v1/anime/info?url=https://proveedor.com/anime/slug
 ```
 
 ### 3. Enlaces de Episodio
-```
+```http
 GET /api/v1/anime/episode?url=https://proveedor.com/ver/slug-1
 ```
 
 ### 4. Descarga
-```
+```http
 POST /api/v1/anime/download
 Content-Type: application/json
 
@@ -142,12 +146,12 @@ Content-Type: application/json
 ```
 
 ### 5. Estado de Descarga
-```
+```http
 GET /api/v1/anime/download/:id
 ```
 
 ### 6. Descarga por Lote
-```
+```http
 POST /api/v1/anime/batch
 
 {
@@ -159,7 +163,7 @@ POST /api/v1/anime/batch
 
 ---
 
-## ⚠️ Limitaciones Conocidas
+## Limitaciones Conocidas
 
 ### Protecciones Anti-Bot
 - **AnimeFLV**: Usa fingerprinting JS + redirect. Requiere puppeteer con espera activa (~5-10s).
@@ -179,7 +183,7 @@ POST /api/v1/anime/batch
 
 ---
 
-## 🔧 Debug y Solución de Problemas
+## Debug y Solución de Problemas
 
 ```bash
 # Activar logs detallados
@@ -195,9 +199,9 @@ ls downloads/
 
 ---
 
-## 📁 Estructura del Proyecto
+## Estructura del Proyecto
 
-```
+```text
 anime1v-api/
 ├── descargador.js          # CLI interactivo v2
 ├── src/
@@ -219,7 +223,20 @@ anime1v-api/
 
 ---
 
-## 👤 Créditos y Autoría
+## Contribuir a Anime1v API
+
+¡Gracias a todos los que nos han ayudado a llegar a más de **110 estrellas y 20 forks**! 
+Si deseas contribuir al código, reportar un error o sugerir una nueva funcionalidad, por favor revisa nuestros documentos de contribución:
+
+- [Guía de Contribución (`CONTRIBUTING.md`)](CONTRIBUTING.md)
+- [Plantilla de Pull Request](.github/PULL_REQUEST_TEMPLATE.md)
+- [Plantilla de Reporte de Bug](.github/ISSUE_TEMPLATE/bug_report.md)
+
+Las contribuciones que no sigan las reglas establecidas (como evitar "zombie browsers" en Puppeteer o no incluir manejo de errores) podrían ser rechazadas.
+
+---
+
+## Créditos y Autoría
 
 **Todo el motor de Scraping, la lógica CLI concurrente, el bypass de HLS y este diseño de API fueron creados desde cero por FxxMorgan.**
 
