@@ -9,6 +9,9 @@ const ffmpeg = require("fluent-ffmpeg");
 ffmpeg.setFfmpegPath(ffmpegPath);
 const { ApiError } = require("../utils/api-error");
 const animeService = require("./anime.service");
+const { extractVoe } = require("../utils/resolvers/voe.resolver");
+const { extractStreamwish } = require("../utils/resolvers/streamwish.resolver");
+const { extractStreamtape } = require("../utils/resolvers/streamtape.resolver");
 
 let puppeteerBrowser = null;
 
@@ -362,7 +365,18 @@ async function fetchHtmlWithHeaders(url, referer) {
 }
 
 async function resolveStreamwishUrl(url, referer) {
-  debugLog("Streamwish", "Resolving URL", url);
+  debugLog("Streamwish", "Resolving URL with native decrypter", url);
+  try {
+    const resolved = await extractStreamwish(url);
+    if (resolved) {
+      debugLog("Streamwish", "Native decrypter succeeded", resolved);
+      return resolved;
+    }
+  } catch (err) {
+    debugLog("Streamwish", "Native decrypter failed, running fallback", err.message);
+  }
+
+  debugLog("Streamwish", "Resolving URL with fallback", url);
   const { html, headers } = await fetchHtmlWithHeaders(url, referer);
   debugLog("Streamwish", "Fetched HTML length", html.length);
   debugLog("Streamwish", "Content-Type", headers["content-type"]);
@@ -415,7 +429,18 @@ async function resolveStreamwishUrl(url, referer) {
 }
 
 async function resolveStreamtapeUrl(url, referer) {
-  debugLog("Streamtape", "Resolving URL", url);
+  debugLog("Streamtape", "Resolving URL with native decrypter", url);
+  try {
+    const resolved = await extractStreamtape(url);
+    if (resolved) {
+      debugLog("Streamtape", "Native decrypter succeeded", resolved);
+      return resolved;
+    }
+  } catch (err) {
+    debugLog("Streamtape", "Native decrypter failed, running fallback", err.message);
+  }
+
+  debugLog("Streamtape", "Resolving URL with fallback", url);
   const { html, headers } = await fetchHtmlWithHeaders(url, referer);
   debugLog("Streamtape", "Fetched HTML length", html.length);
   debugLog("Streamtape", "Content-Type", headers["content-type"]);
@@ -575,7 +600,18 @@ async function resolveFembedUrl(url, referer) {
 }
 
 async function resolveVoeUrl(url, referer) {
-  debugLog("VOE", "Resolving URL", url);
+  debugLog("VOE", "Resolving URL with native decrypter", url);
+  try {
+    const resolved = await extractVoe(url);
+    if (resolved) {
+      debugLog("VOE", "Native decrypter succeeded", resolved);
+      return resolved;
+    }
+  } catch (err) {
+    debugLog("VOE", "Native decrypter failed, running fallback", err.message);
+  }
+
+  debugLog("VOE", "Resolving URL with fallback", url);
   try {
     const { html, headers } = await fetchHtmlWithHeaders(url, referer);
     debugLog("VOE", "Fetched HTML length", html.length);
