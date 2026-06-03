@@ -44,4 +44,4 @@ ENV PORT=3001
 ENV DISABLE_AUTH=true
 
 # Comando para iniciar el servidor
-CMD ["npm", "run", "dev"]
+CMD ["npm", "start"]
