@@ -1,5 +1,5 @@
 # Usamos una imagen de Node.js optimizada y ligera
-FROM node:18-slim
+FROM node:22-slim
 
 # Instalamos las dependencias del sistema necesarias para Puppeteer / Chromium
 RUN apt-get update && apt-get install -y \
