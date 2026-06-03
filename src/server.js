@@ -71,7 +71,7 @@ app.use((error, _req, res, _next) => {
   res.status(statusCode).json(response);
 });
 
-app.listen(port, () => {
+app.listen(port, "0.0.0.0", () => {
   // eslint-disable-next-line no-console
-  console.log(`Anime1v API listening on http://localhost:${port}`);
+  console.log(`Anime1v API listening on port ${port} (0.0.0.0)`);
 });
